@@ -308,7 +308,7 @@ def test_check_dim_coord_values(
 
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
-def spec_check_bounds_verticies(request, gl, vi, ei, cat):
+def spec_check_bounds_vertices(request, gl, vi, ei, cat):
     expected_failures = (
         not_supported_failures
         + intake_concat_failures
@@ -329,15 +329,15 @@ def spec_check_bounds_verticies(request, gl, vi, ei, cat):
     return request
 
 
-@pytest.mark.parametrize("spec_check_bounds_verticies", test_models, indirect=True)
-def test_check_bounds_verticies(spec_check_bounds_verticies):
+@pytest.mark.parametrize("spec_check_bounds_vertices", test_models, indirect=True)
+def test_check_bounds_vertices(spec_check_bounds_vertices):
     (
         source_id,
         variable_id,
         experiment_id,
         grid_label,
         catalog,
-    ) = spec_check_bounds_verticies.param
+    ) = spec_check_bounds_vertices.param
     ds, cat = data(
         source_id, variable_id, experiment_id, grid_label, True, catalog=catalog
     )
@@ -350,8 +350,8 @@ def test_check_bounds_verticies(spec_check_bounds_verticies):
     if "vertex" in ds.dims:
         np.testing.assert_allclose(ds.vertex.data, np.arange(4))
 
-    # Check for existing bounds and verticies
-    for co in ["lon_bounds", "lat_bounds", "lon_verticies", "lat_verticies"]:
+    # Check for existing bounds and vertices
+    for co in ["lon_bounds", "lat_bounds", "lon_vertices", "lat_vertices"]:
         assert co in ds.coords
         # make sure that all other dims are eliminated from the bounds.
         assert (set(ds[co].dims) - set(["bnds", "vertex"])) == set(["x", "y"])
@@ -361,18 +361,18 @@ def test_check_bounds_verticies(spec_check_bounds_verticies):
     # things are still weird.
     test_ds = ds.where(abs(ds.lat) <= 40, drop=True)
 
-    vertex_lon_diff1 = test_ds.lon_verticies.isel(
+    vertex_lon_diff1 = test_ds.lon_vertices.isel(
         vertex=3
-    ) - test_ds.lon_verticies.isel(vertex=0)
-    vertex_lon_diff2 = test_ds.lon_verticies.isel(
+    ) - test_ds.lon_vertices.isel(vertex=0)
+    vertex_lon_diff2 = test_ds.lon_vertices.isel(
         vertex=2
-    ) - test_ds.lon_verticies.isel(vertex=1)
-    vertex_lat_diff1 = test_ds.lat_verticies.isel(
+    ) - test_ds.lon_vertices.isel(vertex=1)
+    vertex_lat_diff1 = test_ds.lat_vertices.isel(
         vertex=1
-    ) - test_ds.lat_verticies.isel(vertex=0)
-    vertex_lat_diff2 = test_ds.lat_verticies.isel(
+    ) - test_ds.lat_vertices.isel(vertex=0)
+    vertex_lat_diff2 = test_ds.lat_vertices.isel(
         vertex=2
-    ) - test_ds.lat_verticies.isel(vertex=3)
+    ) - test_ds.lat_vertices.isel(vertex=3)
     for vertex_diff in [vertex_lon_diff1, vertex_lon_diff2]:
         assert (vertex_diff <= 0).sum() <= (3 * len(vertex_diff.y))
         # allowing for a few rows to be negative

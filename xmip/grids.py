@@ -14,7 +14,7 @@ grid_spec = pkg_resources.resource_filename(__name__, path)
 
 
 def _parse_bounds_vertex(da, dim="bnds", position=[0, 1]):
-    """Convenience function to extract positions from bounds/verticies"""
+    """Convenience function to extract positions from bounds/vertices"""
     return tuple([da.isel({dim: i}).load().data for i in position])
 
 
@@ -151,30 +151,30 @@ def recreate_metrics(ds, grid):
         ew_bound_idx = [1]
 
     # infer dx at tracer points
-    if "lon_bounds" in ds.coords and "lat_verticies" in ds.coords:
+    if "lon_bounds" in ds.coords and "lat_vertices" in ds.coords:
         lon0, lon1 = _parse_bounds_vertex(ds["lon_bounds"])
         lat0, lat1 = _parse_bounds_vertex(
-            _interp_vertex_to_bounds(ds["lat_verticies"], "x")
+            _interp_vertex_to_bounds(ds["lat_vertices"], "x")
         )
         dist = distance(lon0, lat0, lon1, lat1)
         ds.coords["dx_t"] = xr.DataArray(dist, coords=ds.lon.coords)
 
     # infer dy at tracer points
-    if "lat_bounds" in ds.coords and "lon_verticies" in ds.coords:
+    if "lat_bounds" in ds.coords and "lon_vertices" in ds.coords:
         lat0, lat1 = _parse_bounds_vertex(ds["lat_bounds"])
         lon0, lon1 = _parse_bounds_vertex(
-            _interp_vertex_to_bounds(ds["lon_verticies"], "y")
+            _interp_vertex_to_bounds(ds["lon_vertices"], "y")
         )
         dist = distance(lon0, lat0, lon1, lat1)
         ds.coords["dy_t"] = xr.DataArray(dist, coords=ds.lon.coords)
 
-    if "lon_verticies" in ds.coords and "lat_verticies" in ds.coords:
+    if "lon_vertices" in ds.coords and "lat_vertices" in ds.coords:
         # infer dx at the north/south face
         lon0, lon1 = _parse_bounds_vertex(
-            ds["lon_verticies"], dim="vertex", position=ns_vertex_idx
+            ds["lon_vertices"], dim="vertex", position=ns_vertex_idx
         )
         lat0, lat1 = _parse_bounds_vertex(
-            ds["lat_verticies"], dim="vertex", position=ns_vertex_idx
+            ds["lat_vertices"], dim="vertex", position=ns_vertex_idx
         )
         dist = distance(lon0, lat0, lon1, lat1)
         ds.coords["dx_gy"] = xr.DataArray(
@@ -183,10 +183,10 @@ def recreate_metrics(ds, grid):
 
         # infer dy at the east/west face
         lon0, lon1 = _parse_bounds_vertex(
-            ds["lon_verticies"], dim="vertex", position=ew_vertex_idx
+            ds["lon_vertices"], dim="vertex", position=ew_vertex_idx
         )
         lat0, lat1 = _parse_bounds_vertex(
-            ds["lat_verticies"], dim="vertex", position=ew_vertex_idx
+            ds["lat_vertices"], dim="vertex", position=ew_vertex_idx
         )
         dist = distance(lon0, lat0, lon1, lat1)
         ds.coords["dy_gx"] = xr.DataArray(
@@ -223,7 +223,7 @@ def recreate_metrics(ds, grid):
 
     # infer dx at the corner point
     lon0, lon1 = grid.axes["X"]._get_neighbor_data_pairs(
-        _interp_vertex_to_bounds(ds.lon_verticies.load(), "y")
+        _interp_vertex_to_bounds(ds.lon_vertices.load(), "y")
         .isel(bnds=ns_bound_idx)
         .squeeze(),
         axis_vel_pos["X"],
@@ -241,7 +241,7 @@ def recreate_metrics(ds, grid):
 
     # infer dy at the corner point
     lat0, lat1 = grid.axes["Y"]._get_neighbor_data_pairs(
-        _interp_vertex_to_bounds(ds.lat_verticies.load(), "x")
+        _interp_vertex_to_bounds(ds.lat_vertices.load(), "x")
         .isel(bnds=ew_bound_idx)
         .squeeze(),
         axis_vel_pos["Y"],

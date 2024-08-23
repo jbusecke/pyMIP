@@ -242,8 +242,8 @@ def test_interp_nominal_lon():
         "lon_bounds",
         "lat_bounds",
         "time_bounds",
-        "lat_verticies",
-        "lon_verticies",
+        "lat_vertices",
+        "lon_vertices",
     ],
 )
 def test_correct_coordinates(coord):
@@ -293,8 +293,8 @@ def test_parse_lon_lat_bounds():
     )
 
     ds_test = parse_lon_lat_bounds(ds)
-    assert "lon_verticies" in ds_test.coords
-    assert "lat_verticies" in ds_test.coords
+    assert "lon_vertices" in ds_test.coords
+    assert "lat_vertices" in ds_test.coords
 
     # introduce a time diemension
     for wrong_coord in ["lon_bounds", "lat_bounds"]:
@@ -386,7 +386,7 @@ def test_maybe_convert_bounds_to_vertex():
     lat_v = lat_v.reset_coords(drop=True)
 
     ds_expected = ds.copy()
-    ds_expected = ds_expected.assign_coords(lon_verticies=lon_v, lat_verticies=lat_v)
+    ds_expected = ds_expected.assign_coords(lon_vertices=lon_v, lat_vertices=lat_v)
 
     xr.testing.assert_identical(ds_expected, maybe_convert_bounds_to_vertex(ds))
     # check that datasets that already conform to this are not changed
@@ -396,7 +396,7 @@ def test_maybe_convert_bounds_to_vertex():
 
 
 def test_maybe_convert_vertex_to_bounds():
-    # create a ds with verticies
+    # create a ds with vertices
     lon = np.arange(0, 10)
     lat = np.arange(20, 30)
     data = np.random.rand(len(lon), len(lat))
@@ -406,10 +406,10 @@ def test_maybe_convert_vertex_to_bounds():
     ds.coords["lon"] = ds.x * xr.ones_like(ds.y)
     ds.coords["lat"] = xr.ones_like(ds.x) * ds.y
 
-    ds.coords["lon_verticies"] = (
+    ds.coords["lon_vertices"] = (
         xr.DataArray([-0.1, -0.1, 0.1, 0.1], dims=["vertex"]) + ds["lon"]
     )
-    ds.coords["lat_verticies"] = (
+    ds.coords["lat_vertices"] = (
         xr.DataArray([-0.1, 0.1, 0.1, -0.1], dims=["vertex"]) + ds["lat"]
     )
     ds = promote_empty_dims(ds)
@@ -459,24 +459,24 @@ def test_sort_vertex_order():
             .expand_dims(["x", "y"])
             .to_dataset(name="test")
         )
-        da = da.assign_coords({"lon_verticies": lon_v, "lat_verticies": lat_v})
+        da = da.assign_coords({"lon_vertices": lon_v, "lat_vertices": lat_v})
 
         da_sorted = sort_vertex_order(da).squeeze()
-        new = np.vstack((da_sorted.lon_verticies, da_sorted.lat_verticies)).T
+        new = np.vstack((da_sorted.lon_vertices, da_sorted.lat_vertices)).T
 
         np.testing.assert_allclose(new, ordered_points)
 
-        assert da_sorted.lon_verticies.isel(vertex=0) < da_sorted.lon_verticies.isel(
+        assert da_sorted.lon_vertices.isel(vertex=0) < da_sorted.lon_vertices.isel(
             vertex=3
         )
-        assert da_sorted.lon_verticies.isel(vertex=1) < da_sorted.lon_verticies.isel(
+        assert da_sorted.lon_vertices.isel(vertex=1) < da_sorted.lon_vertices.isel(
             vertex=2
         )
 
-        assert da_sorted.lat_verticies.isel(vertex=0) < da_sorted.lat_verticies.isel(
+        assert da_sorted.lat_vertices.isel(vertex=0) < da_sorted.lat_vertices.isel(
             vertex=1
         )
-        assert da_sorted.lat_verticies.isel(vertex=3) < da_sorted.lat_verticies.isel(
+        assert da_sorted.lat_vertices.isel(vertex=3) < da_sorted.lat_vertices.isel(
             vertex=2
         )
 
