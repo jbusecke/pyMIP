@@ -68,7 +68,7 @@ def _test_data(grid_label="gn", z_axis=True):
             [_add_small_rand(lev - 0.5), _add_small_rand(lev + 0.5)], dim="bnds"
         )
 
-    lon_verticies = xr.concat(
+    lon_vertices = xr.concat(
         [
             _add_small_rand(lon_bounds_e),
             _add_small_rand(lon_bounds_e),
@@ -77,7 +77,7 @@ def _test_data(grid_label="gn", z_axis=True):
         ],
         dim="vertex",
     )
-    lat_verticies = xr.concat(
+    lat_vertices = xr.concat(
         [
             _add_small_rand(lat_bounds_s),
             _add_small_rand(lat_bounds_n),
@@ -94,8 +94,8 @@ def _test_data(grid_label="gn", z_axis=True):
         lat=lat,
         lon_bounds=lon_bounds,
         lat_bounds=lat_bounds,
-        lon_verticies=lon_verticies,
-        lat_verticies=lat_verticies,
+        lon_vertices=lon_vertices,
+        lat_vertices=lat_vertices,
     )
 
     if z_axis:
@@ -115,7 +115,7 @@ def test_parse_bounds_vertex():
     data = np.random.rand(4)
 
     da = xr.DataArray(
-        data, dims=["vertex"], coords={"lon_verticies": lon_b, "lat_verticies": lat_b}
+        data, dims=["vertex"], coords={"lon_vertices": lon_b, "lat_vertices": lat_b}
     )
     test = _parse_bounds_vertex(da, "vertex", position=[0, 3])
     print(test)
@@ -214,7 +214,7 @@ def test_recreate_metrics(xshift, yshift, z_axis):
     if yshift == "left":
         # dx
         lon0, lon1 = grid.axes["X"]._get_neighbor_data_pairs(
-            _interp_vertex_to_bounds(ds_metrics.lon_verticies, "y").isel(bnds=0),
+            _interp_vertex_to_bounds(ds_metrics.lon_vertices, "y").isel(bnds=0),
             xshift,
         )
         lat0, lat1 = grid.axes["X"]._get_neighbor_data_pairs(
@@ -222,7 +222,7 @@ def test_recreate_metrics(xshift, yshift, z_axis):
         )
     elif yshift == "right":
         lon0, lon1 = grid.axes["X"]._get_neighbor_data_pairs(
-            _interp_vertex_to_bounds(ds_metrics.lon_verticies, "y").isel(bnds=1),
+            _interp_vertex_to_bounds(ds_metrics.lon_vertices, "y").isel(bnds=1),
             xshift,
         )
         lat0, lat1 = grid.axes["X"]._get_neighbor_data_pairs(
@@ -234,7 +234,7 @@ def test_recreate_metrics(xshift, yshift, z_axis):
     if xshift == "left":
         # dx
         lat0, lat1 = grid.axes["Y"]._get_neighbor_data_pairs(
-            _interp_vertex_to_bounds(ds_metrics.lat_verticies, "x").isel(bnds=0),
+            _interp_vertex_to_bounds(ds_metrics.lat_vertices, "x").isel(bnds=0),
             yshift,
         )
         lon0, lon1 = grid.axes["Y"]._get_neighbor_data_pairs(
@@ -242,7 +242,7 @@ def test_recreate_metrics(xshift, yshift, z_axis):
         )
     elif xshift == "right":
         lat0, lat1 = grid.axes["Y"]._get_neighbor_data_pairs(
-            _interp_vertex_to_bounds(ds_metrics.lat_verticies, "x").isel(bnds=1),
+            _interp_vertex_to_bounds(ds_metrics.lat_vertices, "x").isel(bnds=1),
             yshift,
         )
         lon0, lon1 = grid.axes["Y"]._get_neighbor_data_pairs(
@@ -255,12 +255,12 @@ def test_recreate_metrics(xshift, yshift, z_axis):
     else:
         vertex_points = [2, 3]
     lon0, lon1 = (
-        ds_metrics.lon_verticies.isel(vertex=vertex_points[0]),
-        ds_metrics.lon_verticies.isel(vertex=vertex_points[1]),
+        ds_metrics.lon_vertices.isel(vertex=vertex_points[0]),
+        ds_metrics.lon_vertices.isel(vertex=vertex_points[1]),
     )
     lat0, lat1 = (
-        ds_metrics.lat_verticies.isel(vertex=vertex_points[0]),
-        ds_metrics.lat_verticies.isel(vertex=vertex_points[1]),
+        ds_metrics.lat_vertices.isel(vertex=vertex_points[0]),
+        ds_metrics.lat_vertices.isel(vertex=vertex_points[1]),
     )
     dy_gx_expected = distance(lon0, lat0, lon1, lat1)
 
@@ -269,12 +269,12 @@ def test_recreate_metrics(xshift, yshift, z_axis):
     else:
         vertex_points = [1, 2]
     lon0, lon1 = (
-        ds_metrics.lon_verticies.isel(vertex=vertex_points[0]),
-        ds_metrics.lon_verticies.isel(vertex=vertex_points[1]),
+        ds_metrics.lon_vertices.isel(vertex=vertex_points[0]),
+        ds_metrics.lon_vertices.isel(vertex=vertex_points[1]),
     )
     lat0, lat1 = (
-        ds_metrics.lat_verticies.isel(vertex=vertex_points[0]),
-        ds_metrics.lat_verticies.isel(vertex=vertex_points[1]),
+        ds_metrics.lat_vertices.isel(vertex=vertex_points[0]),
+        ds_metrics.lat_vertices.isel(vertex=vertex_points[1]),
     )
     dx_gy_expected = distance(lon0, lat0, lon1, lat1)
 

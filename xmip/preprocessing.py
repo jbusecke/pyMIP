@@ -250,8 +250,8 @@ def correct_coordinates(ds, verbose=False):
         "lon_bounds",
         "lat_bounds",
         "time_bounds",
-        "lat_verticies",
-        "lon_verticies",
+        "lat_vertices",
+        "lon_vertices",
     ]:
         if co in ds.variables:
             if verbose:
@@ -283,7 +283,7 @@ def correct_lon(ds):
 
 def parse_lon_lat_bounds(ds):
     """both `regular` 2d bounds and vertex bounds are parsed as `*_bounds`.
-    This function renames them to `*_verticies` if the vertex dimension is found.
+    This function renames them to `*_vertices` if the vertex dimension is found.
     Also removes time dimension from static bounds as found in e.g. `SAM0-UNICON` model.
     """
     if "source_id" in ds.attrs.keys():
@@ -321,20 +321,20 @@ def parse_lon_lat_bounds(ds):
     for va in ["lon", "lat"]:
         va_name = va + "_bounds"
         if va_name in ds.variables and "vertex" in ds[va_name].dims:
-            ds = ds.rename({va_name: va + "_verticies"})
+            ds = ds.rename({va_name: va + "_vertices"})
 
     return ds
 
 
 def maybe_convert_bounds_to_vertex(ds):
-    """Converts renamed lon and lat bounds into verticies, by copying
+    """Converts renamed lon and lat bounds into vertices, by copying
     the values into the corners. Assumes a rectangular cell."""
     ds = ds.copy()
     if "bnds" in ds.dims:
         if "lon_bounds" in ds.variables and "lat_bounds" in ds.variables:
             if (
-                "lon_verticies" not in ds.variables
-                and "lat_verticies" not in ds.variables
+                "lon_vertices" not in ds.variables
+                and "lat_vertices" not in ds.variables
             ):
                 lon_b = xr.ones_like(ds.lat) * ds.coords["lon_bounds"]
                 lat_b = xr.ones_like(ds.lon) * ds.coords["lat_bounds"]
@@ -351,30 +351,30 @@ def maybe_convert_bounds_to_vertex(ds):
                 )
                 lat_bb = lat_bb.reset_coords(drop=True)
 
-                ds = ds.assign_coords(lon_verticies=lon_bb, lat_verticies=lat_bb)
+                ds = ds.assign_coords(lon_vertices=lon_bb, lat_vertices=lat_bb)
 
     return ds
 
 
 def maybe_convert_vertex_to_bounds(ds):
-    """Converts lon and lat verticies to bounds by averaging corner points
+    """Converts lon and lat vertices to bounds by averaging corner points
     on the appropriate cell face center."""
 
     ds = ds.copy()
     if "vertex" in ds.dims:
-        if "lon_verticies" in ds.variables and "lat_verticies" in ds.variables:
+        if "lon_vertices" in ds.variables and "lat_vertices" in ds.variables:
             if "lon_bounds" not in ds.variables and "lat_bounds" not in ds.variables:
                 lon_b = xr.concat(
                     [
-                        ds["lon_verticies"].isel(vertex=[0, 1]).mean("vertex"),
-                        ds["lon_verticies"].isel(vertex=[2, 3]).mean("vertex"),
+                        ds["lon_vertices"].isel(vertex=[0, 1]).mean("vertex"),
+                        ds["lon_vertices"].isel(vertex=[2, 3]).mean("vertex"),
                     ],
                     dim="bnds",
                 )
                 lat_b = xr.concat(
                     [
-                        ds["lat_verticies"].isel(vertex=[0, 3]).mean("vertex"),
-                        ds["lat_verticies"].isel(vertex=[1, 2]).mean("vertex"),
+                        ds["lat_vertices"].isel(vertex=[0, 3]).mean("vertex"),
+                        ds["lat_vertices"].isel(vertex=[1, 2]).mean("vertex"),
                     ],
                     dim="bnds",
                 )
@@ -394,15 +394,15 @@ def sort_vertex_order(ds):
     ds = ds.copy()
     if (
         "vertex" in ds.dims
-        and "lon_verticies" in ds.variables
-        and "lat_verticies" in ds.variables
+        and "lon_vertices" in ds.variables
+        and "lat_vertices" in ds.variables
     ):
         # pick a vertex in the middle of the domain, to avoid the pole areas
         x_idx = len(ds.x) // 2
         y_idx = len(ds.y) // 2
 
-        lon_b = ds.lon_verticies.isel(x=x_idx, y=y_idx).load().data
-        lat_b = ds.lat_verticies.isel(x=x_idx, y=y_idx).load().data
+        lon_b = ds.lon_vertices.isel(x=x_idx, y=y_idx).load().data
+        lat_b = ds.lat_vertices.isel(x=x_idx, y=y_idx).load().data
         vert = ds.vertex.load().data
 
         points = np.vstack((lon_b, lat_b, vert)).T
@@ -461,7 +461,7 @@ def combined_preprocessing(ds):
     ds = correct_units(ds)
     # rename the `bounds` according to their style (bound or vertex)
     ds = parse_lon_lat_bounds(ds)
-    # sort verticies in a consistent manner
+    # sort vertices in a consistent manner
     ds = sort_vertex_order(ds)
     # convert vertex into bounds and vice versa, so both are available
     ds = maybe_convert_bounds_to_vertex(ds)
