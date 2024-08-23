@@ -361,18 +361,18 @@ def test_check_bounds_vertices(spec_check_bounds_vertices):
     # things are still weird.
     test_ds = ds.where(abs(ds.lat) <= 40, drop=True)
 
-    vertex_lon_diff1 = test_ds.lon_vertices.isel(
-        vertex=3
-    ) - test_ds.lon_vertices.isel(vertex=0)
-    vertex_lon_diff2 = test_ds.lon_vertices.isel(
-        vertex=2
-    ) - test_ds.lon_vertices.isel(vertex=1)
-    vertex_lat_diff1 = test_ds.lat_vertices.isel(
+    vertex_lon_diff1 = test_ds.lon_vertices.isel(vertex=3) - test_ds.lon_vertices.isel(
+        vertex=0
+    )
+    vertex_lon_diff2 = test_ds.lon_vertices.isel(vertex=2) - test_ds.lon_vertices.isel(
         vertex=1
-    ) - test_ds.lat_vertices.isel(vertex=0)
-    vertex_lat_diff2 = test_ds.lat_vertices.isel(
-        vertex=2
-    ) - test_ds.lat_vertices.isel(vertex=3)
+    )
+    vertex_lat_diff1 = test_ds.lat_vertices.isel(vertex=1) - test_ds.lat_vertices.isel(
+        vertex=0
+    )
+    vertex_lat_diff2 = test_ds.lat_vertices.isel(vertex=2) - test_ds.lat_vertices.isel(
+        vertex=3
+    )
     for vertex_diff in [vertex_lon_diff1, vertex_lon_diff2]:
         assert (vertex_diff <= 0).sum() <= (3 * len(vertex_diff.y))
         # allowing for a few rows to be negative
