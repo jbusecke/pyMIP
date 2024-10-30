@@ -352,12 +352,10 @@ def _pick_grid_label(ds_list, preferred_grid_label):
         return ds_list[0]
 
 
-def _drop_duplicate_grid_labels(ddict, preferred_grid_label):
+def drop_duplicate_grid_labels(ddict, preferred_grid_label):
     """Eliminate multiple grid labels for the same dataset, by dropping multiples
     with a preference for `preferred_grid_label`"""
-    match_attrs = [ma for ma in EXACT_ATTRS if ma not in ["version", "grid_label"]] + [
-        "variable_id"
-    ]
+    match_attrs = [ma for ma in EXACT_ATTRS if ma not in ["version", "grid_label"]]
     return combine_datasets(
         ddict,
         _pick_grid_label,
@@ -519,7 +517,7 @@ def interpolate_grid_label(
     merge_kwargs.setdefault("combine_attrs", "drop_conflicts")
 
     # first drop the datasets that might have both the target and another grid_label present
-    ds_dict = _drop_duplicate_grid_labels(ds_dict, target_grid_label)
+    ds_dict = drop_duplicate_grid_labels(ds_dict, target_grid_label)
 
     return combine_datasets(
         ds_dict,
