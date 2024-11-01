@@ -61,7 +61,7 @@ jobs:
         run: |
           pytest -n auto --cov=./ --cov-report=xml --ignore=tests/test_preprocessing_cloud.py
       - name: Upload code coverage to Codecov
-        uses: codecov/codecov-action@v4.5.0
+        uses: codecov/codecov-action@v4.6.0
         with:
           file: ./coverage.xml
           flags: unittests
@@ -96,7 +96,7 @@ jobs:
         run: |
           pytest -n auto --cov=./ --cov-report=xml --ignore=tests/test_preprocessing_cloud.py
       - name: Upload code coverage to Codecov
-        uses: codecov/codecov-action@v4.5.0
+        uses: codecov/codecov-action@v4.6.0
         with:
           file: ./coverage.xml
           flags: unittests
